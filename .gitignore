@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+
+# Internal sales material - not for the public repo
+PITCH-WALKTHROUGH.md
+
+.env
+.env.local
+
+# Client documents - not for the public repo
+V-Star_Properties_Brand_Guidelines.pdf
+V-Star_SEO_AEO_Client_Explainer.pdf
