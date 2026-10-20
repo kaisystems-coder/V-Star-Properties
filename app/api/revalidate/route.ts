@@ -1,6 +1,7 @@
 import { revalidateTag } from 'next/cache';
 import { LISTINGS_TAG } from '@/lib/listings';
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '@/lib/supabase/config';
+import { TENANT_ID } from '@/lib/supabase/tenant';
 
 /**
  * Called by /admin after every save so the public pages pick up the change.
@@ -11,7 +12,7 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '@/lib/supabase/config';
  * lets a user read their own membership rows). No service-role key involved.
  */
 export async function POST(request: Request) {
-  const tenant = process.env.TENANT_ID;
+  const tenant = TENANT_ID;
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
   if (!tenant || !token) return Response.json({ ok: false }, { status: 401 });
 

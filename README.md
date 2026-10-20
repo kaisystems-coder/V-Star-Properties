@@ -64,6 +64,7 @@ Her listings and photos live in Supabase, and she manages them herself at `/admi
 (email + password). Every save shows on the site right away. Details, migrations
 and tests are in `supabase/README.md`.
 
-Environment (copy `.env.example` to `.env.local`, and set the same three in Vercel):
-`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `TENANT_ID`.
-The build reads the listings, so it fails loudly if these are missing.
+No environment setup is needed: the Supabase URL, publishable key (both public)
+and tenant id are defaults in `lib/supabase/config.ts` and `lib/supabase/tenant.ts`,
+overridable with the env vars listed in `.env.example`. The build reads the
+listings from Supabase, so it fails if Supabase is unreachable.

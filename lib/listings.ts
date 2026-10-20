@@ -1,6 +1,7 @@
 import type { Listing } from '@/types/listing';
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from './supabase/config';
 import { fromRow, type ListingRow } from './supabase/rows';
+import { TENANT_ID } from './supabase/tenant';
 
 /**
  * The public site's read path: her published listings, from Supabase.
@@ -16,14 +17,10 @@ import { fromRow, type ListingRow } from './supabase/rows';
 export const LISTINGS_TAG = 'listings';
 
 export async function getListings(): Promise<Listing[]> {
-  const tenant = process.env.TENANT_ID;
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !tenant) {
-    throw new Error('Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY and TENANT_ID.');
-  }
   const res = await fetch(
     SUPABASE_URL +
       '/rest/v1/listings?select=*&is_published=eq.true&tenant_id=eq.' +
-      tenant +
+      TENANT_ID +
       '&order=date_listed.desc,created_at.desc',
     {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
