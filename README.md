@@ -13,7 +13,7 @@ node node_modules/next/dist/bin/next dev -p 5650   # http://localhost:5650
 
 ## What is in it
 
-- **138 real listings** (66 for sale, 72 to rent) imported from her current
+- **138 real listings** (66 for sale, 72 to rent), now in Supabase, imported from her current
   site, v-starproperties.lovable.app, which mirrors her My Bunch of Keys
   listings. Titles, prices, beds/baths, descriptions and photos are hers;
   property type, region, amenity tags and map positions are derived.
@@ -58,19 +58,12 @@ Profile, Facebook page and Instagram bio.
 - Hero video is stock footage of other homes; swap for her own footage or a
   bright exterior when she has one.
 
-## Supabase (going live)
+## Listings backend (Supabase)
 
-1. Create a project, run `supabase/schema.sql` in the SQL editor.
-2. Seed her listings:
-   `SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node supabase/seed.mjs`
-3. Copy `.env.example` to `.env.local` and fill in the keys.
-4. Swap the five function bodies in `lib/listings.ts` (each carries the exact
-   query in a `TODO` comment) and `getAgents()` in `lib/agents.ts`.
-5. Move photos to a `listing-photos` Storage bucket. Most are hotlinked from
-   mybunchofkeys.com today; the Lovable-only ones are in `public/listings/`.
-6. Put Supabase Auth in front of `/admin` (it is open in the preview so she
-   can try the listing manager), and point the enquiry forms at the
-   `enquiries` table.
+Her listings and photos live in Supabase, and she manages them herself at `/admin`
+(email + password). Every save shows on the site right away. Details, migrations
+and tests are in `supabase/README.md`.
 
-Until then the listing store is in-memory + sessionStorage: edits made in
-/admin show across the site and reset when the tab closes.
+Environment (copy `.env.example` to `.env.local`, and set the same three in Vercel):
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `TENANT_ID`.
+The build reads the listings, so it fails loudly if these are missing.

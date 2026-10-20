@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { useId, useMemo, useState } from 'react';
-import { useListingsStore } from '@/lib/store';
+import { useListings } from '@/lib/listings-context';
 import { PROPERTY_TYPES } from '@/types/listing';
 import type { ListingType, SaleOrRent } from '@/types/listing';
 import { PRICE_BOUNDS, REGIONS } from '@/lib/filters';
@@ -91,7 +91,7 @@ export default function HeroSearch({ count }: { count: number }) {
   const [beds, setBeds] = useState(0);
   const [baths, setBaths] = useState(0);
 
-  const listings = useListingsStore((s) => s.listings);
+  const listings = useListings();
   const sector: SaleOrRent = mode === 'buy' ? 'Sale' : 'Rent';
 
   /**

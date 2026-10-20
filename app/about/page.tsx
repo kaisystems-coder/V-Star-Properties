@@ -60,7 +60,7 @@ const FACTS = [
   { figure: 'TTD', label: 'Everything priced in' },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
   const agents = getAgents();
 
   return (
@@ -205,7 +205,7 @@ export default function AboutPage() {
             One agent, responsible for every file from listing through to closing.
           </p>
           <div className="mt-8">
-            <AgentFeature agent={agents[0]} listings={getListings()} />
+            <AgentFeature agent={agents[0]} listings={await getListings()} />
           </div>
         </div>
       </section>

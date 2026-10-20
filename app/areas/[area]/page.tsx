@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { MOCK_LISTINGS } from '@/lib/mock-listings';
+import { getListings } from '@/lib/listings';
 import { getAgents } from '@/lib/agents';
 import { regionSlug } from '@/lib/regions';
 import { formatTTD } from '@/lib/format';
@@ -37,20 +37,23 @@ import QuickAnswers from '@/components/QuickAnswers';
  * A server component: the whole page is in the HTML a crawler receives.
  */
 
-export function generateStaticParams() {
-  return areasWithPages(MOCK_LISTINGS).map((loc) => ({ area: areaSlug(loc) }));
+export async function generateStaticParams() {
+  return areasWithPages(await getListings()).map((loc) => ({ area: areaSlug(loc) }));
 }
 
-export const dynamicParams = false;
+// True so an area that reaches the page threshold after an admin edit gets
+// its page (the footer links it at once); load() still 404s anything else.
+export const dynamicParams = true;
 
-function load(slug: string) {
-  const location = locationFromAreaSlug(MOCK_LISTINGS, slug);
-  if (!location) return null;
-  const listings = MOCK_LISTINGS.filter((l) => l.location === location);
+async function load(slug: string) {
+  const all = await getListings();
+  const location = locationFromAreaSlug(all, slug);
+  if (!location || !areasWithPages(all).includes(location)) return null;
+  const listings = all.filter((l) => l.location === location);
   const name = areaDisplayName(location);
   const sale = listings.filter((l) => l.listingType === 'Sale');
   const rent = listings.filter((l) => l.listingType === 'Rent');
-  return { location, name, listings, sale, rent, region: listings[0].region };
+  return { all, location, name, listings, sale, rent, region: listings[0].region };
 }
 
 export async function generateMetadata({
@@ -59,7 +62,7 @@ export async function generateMetadata({
   params: Promise<{ area: string }>;
 }): Promise<Metadata> {
   const { area } = await params;
-  const d = load(area);
+  const d = await load(area);
   if (!d) return {};
 
   const what =
@@ -109,7 +112,7 @@ export async function generateMetadata({
 
 export default async function AreaPage({ params }: { params: Promise<{ area: string }> }) {
   const { area } = await params;
-  const d = load(area);
+  const d = await load(area);
   if (!d) notFound();
 
   const path = '/areas/' + area;
@@ -120,8 +123,8 @@ export default async function AreaPage({ params }: { params: Promise<{ area: str
   const rents = d.rent.filter((l) => l.price > 0).map((l) => l.price);
 
   // Sibling areas in the same region first, so the cluster links up.
-  const siblings = areasWithPages(MOCK_LISTINGS).filter((loc) => loc !== d.location);
-  const sameRegion = siblings.filter((loc) => MOCK_LISTINGS.find((l) => l.location === loc)?.region === d.region);
+  const siblings = areasWithPages(d.all).filter((loc) => loc !== d.location);
+  const sameRegion = siblings.filter((loc) => d.all.find((l) => l.location === loc)?.region === d.region);
   const others = siblings.filter((loc) => !sameRegion.includes(loc));
 
   return (
@@ -197,7 +200,7 @@ export default async function AreaPage({ params }: { params: Promise<{ area: str
               Your agent for {d.name}
             </h2>
             <div className="mt-7">
-              <AgentFeature agent={agent} listings={MOCK_LISTINGS} headingLevel="h3" />
+              <AgentFeature agent={agent} listings={d.all} headingLevel="h3" />
             </div>
           </div>
         </section>

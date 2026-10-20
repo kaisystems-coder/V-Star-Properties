@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { useListingsStore } from '@/lib/store';
+import { useListings } from '@/lib/listings-context';
 import { allRegions, type SortKey } from '@/lib/filters';
 import type { SaleOrRent } from '@/types/listing';
 import ListingCard from './ListingCard';
@@ -25,7 +25,7 @@ const SORTS: { value: SortKey; label: string }[] = [
  * control set.
  */
 export default function LandBrowser() {
-  const listings = useListingsStore((s) => s.listings);
+  const listings = useListings();
   const [region, setRegion] = useState('');
   const [tenure, setTenure] = useState<SaleOrRent | ''>('');
   const [sort, setSort] = useState<SortKey>('newest');

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useListingsStore } from '@/lib/store';
+import { useListings } from '@/lib/listings-context';
 import { useSavedStore, useSavedHydrated } from '@/lib/saved';
 import PageHeader from '@/components/PageHeader';
 import ListingCard from '@/components/ListingCard';
@@ -21,7 +21,7 @@ import ListingCard from '@/components/ListingCard';
  * Metadata therefore comes from the layout rather than an exported object.
  */
 export default function SavedPage() {
-  const listings = useListingsStore((s) => s.listings);
+  const listings = useListings();
   const ids = useSavedStore((s) => s.ids);
   const clear = useSavedStore((s) => s.clear);
   const hydrated = useSavedHydrated();

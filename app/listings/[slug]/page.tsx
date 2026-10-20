@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getListingBySlug, getListings } from '@/lib/listings';
 import ListingDetail from '@/components/ListingDetail';
 import { formatPrice } from '@/lib/format';
@@ -14,15 +15,14 @@ import {
   SITE_NAME,
 } from '@/lib/seo';
 
-/** Every seeded listing is rendered at build time — no request-time fetching. */
-export function generateStaticParams() {
-  return getListings().map((listing) => ({ slug: listing.slug }));
+/** Every published listing is rendered at build time from Supabase. */
+export async function generateStaticParams() {
+  return (await getListings()).map((listing) => ({ slug: listing.slug }));
 }
 
 /**
- * A listing created in /admin has a slug that did not exist at build time, so
- * its route must still render rather than 404. The shell is static either way;
- * the content comes from the client store.
+ * A listing created in /admin after the build has a slug that did not exist
+ * then, so its route renders on first visit and is cached from there.
  */
 export const dynamicParams = true;
 
@@ -32,7 +32,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const listing = getListingBySlug(slug);
+  const listing = await getListingBySlug(slug);
   if (!listing) return { title: 'Listing not found' };
 
   const path = '/listings/' + listing.slug;
@@ -114,14 +114,10 @@ export default async function ListingPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  // Schema comes from the build-time listing. A property added in /admin has
-  // none, which is correct: it is session-only demo state that no crawler will
-  // ever see.
-  const listing = getListingBySlug(slug);
+  const listing = await getListingBySlug(slug);
+  // A deleted or hidden listing is a real 404, so Google drops it.
+  if (!listing) notFound();
 
-  // The detail view resolves the listing from the shared client store, so a
-  // property added or edited in /admin renders here too — not just the ten
-  // seeded slugs that were known at build time.
   return (
     <>
       {listing && (
@@ -139,7 +135,7 @@ export default async function ListingPage({
                   name: listing.region,
                   path: '/trinidad/' + regionSlug(listing.region),
                 },
-                ...(areasWithPages(getListings()).includes(listing.location)
+                ...(areasWithPages(await getListings()).includes(listing.location)
                   ? [{ name: areaDisplayName(listing.location), path: '/areas/' + areaSlug(listing.location) }]
                   : []),
                 { name: listing.title, path: '/listings/' + listing.slug },

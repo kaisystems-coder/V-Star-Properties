@@ -9,10 +9,12 @@ export default function ConfirmDelete({
   listing,
   onCancel,
   onConfirm,
+  busy = false,
 }: {
   listing: Listing | null;
   onCancel: () => void;
   onConfirm: () => void;
+  busy?: boolean;
 }) {
   const reduce = useReducedMotion();
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -62,8 +64,9 @@ export default function ConfirmDelete({
             </h2>
             <p id="delete-body" className="mt-2 text-[0.88rem] leading-relaxed text-ink-mute">
               <span className="text-ink-soft">{listing.title}</span> in{' '}
-              {listing.location} comes off the site straight away. This cannot be
-              undone.
+              {listing.location} and its photos come off the site straight away.
+              This cannot be undone. To take it down for now instead, edit it and
+              untick &ldquo;Show on the website&rdquo;.
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -78,9 +81,11 @@ export default function ConfirmDelete({
               <button
                 type="button"
                 onClick={onConfirm}
-                className="rounded-sm bg-[#9B3D2E] px-4 py-2.5 text-[0.85rem] text-mist transition-[background-color,transform] duration-200 ease-out hover:bg-[#823226] active:translate-y-px"
+                disabled={busy}
+                aria-busy={busy}
+                className="rounded-sm bg-[#9B3D2E] px-4 py-2.5 text-[0.85rem] text-mist transition-[background-color,transform,opacity] duration-200 ease-out hover:bg-[#823226] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B3D2E] active:translate-y-px disabled:cursor-progress disabled:opacity-70"
               >
-                Delete listing
+                {busy ? 'Deleting…' : 'Delete listing'}
               </button>
             </div>
           </motion.div>

@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AgentsPage() {
+export default async function AgentsPage() {
   const agents = getAgents();
-  const listings = getListings();
+  const listings = await getListings();
 
   // A one-agent brokerage gets one profile card, not a roster with an area
   // filter that can only ever return the same person.

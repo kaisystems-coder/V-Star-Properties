@@ -4,6 +4,8 @@ import './globals.css';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import WhatsAppButton from '@/components/WhatsAppButton';
+import { getListings } from '@/lib/listings';
+import { ListingsProvider } from '@/lib/listings-context';
 import {
   DEFAULT_OG_IMAGE,
   jsonLd,
@@ -133,7 +135,9 @@ export const viewport: Viewport = {
   colorScheme: 'light',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Her published listings, cached and tag-revalidated (lib/listings.ts).
+  const listings = await getListings();
   return (
     <html lang="en-TT" className={sans.variable + ' ' + serif.variable}>
       <body className="font-sans antialiased">
@@ -153,9 +157,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <SiteHeader />
-        <main id="main">{children}</main>
-        <SiteFooter />
+        <ListingsProvider listings={listings}>
+          <SiteHeader />
+          <main id="main">{children}</main>
+          <SiteFooter listings={listings} />
+        </ListingsProvider>
         <WhatsAppButton />
       </body>
     </html>

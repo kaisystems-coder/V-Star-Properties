@@ -3,10 +3,10 @@ import Logo, { BRAND, SocialIcon } from './Logo';
 import { NAV_LINKS, UTILITY_NAV } from '@/lib/nav';
 import { REGIONS } from '@/lib/filters';
 import { regionSlug } from '@/lib/regions';
-import { MOCK_LISTINGS } from '@/lib/mock-listings';
+import type { Listing } from '@/types/listing';
 import { areaDisplayName, areaSlug, areasWithPages } from '@/lib/aeo';
 
-export default function SiteFooter() {
+export default function SiteFooter({ listings }: { listings: Listing[] }) {
   return (
     <footer className="on-ink mt-24 bg-ink text-mist">
       <div className="mx-auto max-w-[82rem] px-5 py-16 sm:px-8">
@@ -142,7 +142,7 @@ export default function SiteFooter() {
         <nav aria-label="Popular areas" className="mt-12 border-t border-mist/12 pt-8">
           <h2 className="text-[0.68rem] uppercase tracking-[0.2em] text-mist/70">Popular areas</h2>
           <ul className="mt-3 flex flex-wrap gap-x-1 gap-y-1">
-            {areasWithPages(MOCK_LISTINGS).map((loc) => (
+            {areasWithPages(listings).map((loc) => (
               <li key={loc}>
                 <Link
                   href={'/areas/' + areaSlug(loc)}

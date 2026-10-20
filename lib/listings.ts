@@ -1,56 +1,45 @@
-import type { Listing, ListingDraft } from '@/types/listing';
-import { MOCK_LISTINGS } from './mock-listings';
-import { useListingsStore } from './store';
+import type { Listing } from '@/types/listing';
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from './supabase/config';
+import { fromRow, type ListingRow } from './supabase/rows';
 
 /**
- * The single data-access boundary for the app.
+ * The public site's read path: her published listings, from Supabase.
  *
- * Nothing outside this file touches the store or the mock array directly, so
- * moving to Supabase is a change to five function bodies rather than a rewrite.
- * Each function below carries the query that replaces it.
+ * Plain fetch against PostgREST (not supabase-js) so Next's data cache holds
+ * the result: every page is static, and one `revalidateTag('listings')` from
+ * /api/revalidate — called by the admin after each save — refreshes them all.
+ * The hourly revalidate is only a safety net for edits made outside the admin.
  *
- * When these become async, the call sites change in one mechanical way: the
- * read functions are already called from Server Components (await them), and
- * the write functions are already called from event handlers (await them and
- * revalidate). No component structure changes.
+ * Runs as `anon`, so RLS returns published rows only. The tenant filter is
+ * defence in depth and keeps the query on the tenant index.
  */
+export const LISTINGS_TAG = 'listings';
 
-/** Reads used at build time by Server Components. */
-export function getListings(): Listing[] {
-  // TODO: replace with Supabase query
-  // const { data } = await supabase.from('listings').select('*').order('date_listed', { ascending: false });
-  // return data ?? [];
-  return MOCK_LISTINGS;
+export async function getListings(): Promise<Listing[]> {
+  const tenant = process.env.TENANT_ID;
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !tenant) {
+    throw new Error('Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY and TENANT_ID.');
+  }
+  const res = await fetch(
+    SUPABASE_URL +
+      '/rest/v1/listings?select=*&is_published=eq.true&tenant_id=eq.' +
+      tenant +
+      '&order=date_listed.desc,created_at.desc',
+    {
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
+      cache: 'force-cache',
+      next: { tags: [LISTINGS_TAG], revalidate: 3600 },
+    },
+  );
+  // Throw rather than render an empty catalogue: at build that fails the
+  // deploy, and at runtime Next keeps serving the last good page.
+  if (!res.ok) throw new Error('Listings fetch failed: ' + res.status + ' ' + (await res.text()));
+  return ((await res.json()) as ListingRow[]).map(fromRow);
 }
 
-export function getListingBySlug(slug: string): Listing | undefined {
-  // TODO: replace with Supabase query
-  // const { data } = await supabase.from('listings').select('*').eq('slug', slug).single();
-  // return data ?? undefined;
-  return MOCK_LISTINGS.find((l) => l.slug === slug);
-}
-
-export function createListing(draft: ListingDraft): Listing {
-  // TODO: replace with Supabase query
-  // const { data } = await supabase.from('listings').insert(draft).select().single();
-  // return data;
-  return useListingsStore.getState().create(draft);
-}
-
-export function updateListing(
-  id: string,
-  patch: Partial<ListingDraft>,
-): Listing | null {
-  // TODO: replace with Supabase query
-  // const { data } = await supabase.from('listings').update(patch).eq('id', id).select().single();
-  // return data;
-  return useListingsStore.getState().update(id, patch);
-}
-
-export function deleteListing(id: string): void {
-  // TODO: replace with Supabase query
-  // await supabase.from('listings').delete().eq('id', id);
-  useListingsStore.getState().remove(id);
+export async function getListingBySlug(slug: string): Promise<Listing | undefined> {
+  // Same cached request as getListings, so this costs nothing extra.
+  return (await getListings()).find((l) => l.slug === slug);
 }
 
 /**

@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function FaqPage() {
-  const items = generalFaq(getListings());
+export default async function FaqPage() {
+  const items = generalFaq(await getListings());
 
   return (
     <>

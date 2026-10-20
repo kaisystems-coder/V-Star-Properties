@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { MOCK_LISTINGS } from '@/lib/mock-listings';
+import { getListings } from '@/lib/listings';
 import { getAgents } from '@/lib/agents';
 import { allRegionSlugs, regionFromSlug, regionSlug, regionStats } from '@/lib/regions';
 import { formatTTD } from '@/lib/format';
@@ -52,8 +52,9 @@ export async function generateMetadata({
   const { region: slug } = await params;
   const region = regionFromSlug(slug);
   if (!region) return {};
+  const all = await getListings();
 
-  const stats = regionStats(MOCK_LISTINGS, region);
+  const stats = regionStats(all, region);
   const where = stats.localities.slice(0, 4).join(', ');
 
   const title = 'Houses & Property for Sale & Rent in ' + region;
@@ -70,7 +71,7 @@ export async function generateMetadata({
   // rather than a blank card. Falls back to nothing when the region is empty,
   // which is honest — better no image than one from the wrong end of the
   // island.
-  const hero = MOCK_LISTINGS.find((l) => l.region === region)?.images[0];
+  const hero = all.find((l) => l.region === region)?.images[0];
 
   return {
     title,
@@ -104,9 +105,10 @@ export default async function RegionPage({
   const { region: slug } = await params;
   const region = regionFromSlug(slug);
   if (!region) notFound();
+  const all = await getListings();
 
-  const listings = MOCK_LISTINGS.filter((l) => l.region === region);
-  const stats = regionStats(MOCK_LISTINGS, region);
+  const listings = all.filter((l) => l.region === region);
+  const stats = regionStats(all, region);
 
   // Agents whose territory names this region. Territories are free text, so
   // the match is loose on purpose — "North-West Trinidad" should also catch an
@@ -122,7 +124,7 @@ export default async function RegionPage({
   const sale = listings.filter((l) => l.listingType === 'Sale');
   const rent = listings.filter((l) => l.listingType === 'Rent');
   const faq = listings.length ? placeFaq(region, listings) : [];
-  const areas = areasWithPages(MOCK_LISTINGS).filter((loc) => listings.some((l) => l.location === loc));
+  const areas = areasWithPages(all).filter((loc) => listings.some((l) => l.location === loc));
 
   const intro =
     stats.total > 0
@@ -307,7 +309,7 @@ export default async function RegionPage({
             </p>
             {agents.length === 1 ? (
               <div className="mt-8">
-                <AgentFeature agent={agents[0]} listings={MOCK_LISTINGS} headingLevel="h3" />
+                <AgentFeature agent={agents[0]} listings={all} headingLevel="h3" />
               </div>
             ) : (
               <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 xs:grid-cols-2 lg:grid-cols-4">

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { useMemo, useState } from 'react';
 import type { Listing } from '@/types/listing';
-import { useListingsStore } from '@/lib/store';
+import { useListings } from '@/lib/listings-context';
 import ListingCard from './ListingCard';
 
 /**
@@ -35,7 +35,7 @@ const TABS: { id: Tab; label: string; test: (l: Listing) => boolean }[] = [
 const PAGE = 12;
 
 export default function AgentListings({ agentName }: { agentName: string }) {
-  const listings = useListingsStore((s) => s.listings);
+  const listings = useListings();
   const reduce = useReducedMotion();
   const [tab, setTab] = useState<Tab>('all');
   const [sort, setSort] = useState<Sort>('newest');

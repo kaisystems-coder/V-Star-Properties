@@ -7,9 +7,12 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'images.pexels.com' },
-      // Where V-Star's listing photos are uploaded today. Moves to Supabase
-      // Storage when the backend goes in.
-      { protocol: 'https', hostname: 'mybunchofkeys.com', pathname: '/wp-content/uploads/**' },
+      // Listing photos: the shared project's public bucket, one folder per tenant.
+      {
+        protocol: 'https',
+        hostname: 'ezotkeijhffwylgsjkhq.supabase.co',
+        pathname: '/storage/v1/object/public/listing-photos/**',
+      },
     ],
   },
 };

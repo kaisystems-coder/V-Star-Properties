@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { MOCK_LISTINGS } from '@/lib/mock-listings';
+import { getListings } from '@/lib/listings';
 import { getAgents } from '@/lib/agents';
 import { REGIONS } from '@/lib/filters';
 import { regionSlug } from '@/lib/regions';
@@ -9,16 +9,16 @@ import { abs, SITE_URL } from '@/lib/seo';
 /**
  * The sitemap, generated from the same data the pages render from.
  *
- * Built from MOCK_LISTINGS rather than the zustand store: the store is
- * per-visitor session state, and a sitemap describes what a crawler finds on a
- * cold request. Listing entries carry their photos, so they can surface in
+ * Built from her published listings in Supabase, the same cached read the
+ * pages render from. Listing entries carry their photos, so they can surface in
  * Google Images as well as web results.
  *
  * Excluded: /saved and /admin (also disallowed in robots.ts).
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const listings = await getListings();
   const now = new Date();
-  const newest = MOCK_LISTINGS.reduce(
+  const newest = listings.reduce(
     (d, l) => (l.dateListed > d ? l.dateListed : d),
     '2000-01-01',
   );
@@ -57,7 +57,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
-    ...areasWithPages(MOCK_LISTINGS).map((loc) => ({
+    ...areasWithPages(listings).map((loc) => ({
       url: SITE_URL + '/areas/' + areaSlug(loc),
       lastModified: catalogueDate,
       changeFrequency: 'weekly' as const,
@@ -65,7 +65,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
 
     // Listings carry their own dateListed: a truthful lastModified.
-    ...MOCK_LISTINGS.map((l) => ({
+    ...listings.map((l) => ({
       url: SITE_URL + '/listings/' + l.slug,
       lastModified: new Date(l.dateListed),
       changeFrequency: 'weekly' as const,

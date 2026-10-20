@@ -1,4 +1,4 @@
-import { MOCK_LISTINGS } from '@/lib/mock-listings';
+import { getListings } from '@/lib/listings';
 import { BRAND } from '@/components/Logo';
 import { REGIONS } from '@/lib/filters';
 import { regionSlug } from '@/lib/regions';
@@ -15,8 +15,8 @@ import { SITE_URL } from '@/lib/seo';
  */
 export const dynamic = 'force-static';
 
-export function GET() {
-  const L = MOCK_LISTINGS;
+export async function GET() {
+  const L = await getListings();
   const sale = L.filter((l) => l.listingType === 'Sale');
   const rent = L.filter((l) => l.listingType === 'Rent');
   const line = (l: (typeof L)[number]) =>

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useListingsStore } from '@/lib/store';
+import { useListings } from '@/lib/listings-context';
 import { getAgents } from '@/lib/agents';
 import Hero from '@/components/Hero';
 import FeaturedRail from '@/components/FeaturedRail';
@@ -23,7 +23,7 @@ import { useReveal, revealUp, staggerChildren } from '@/lib/use-reveal';
  * hesitant buyer to engage before they are ready to call anyone.
  */
 export default function HomePage() {
-  const listings = useListingsStore((s) => s.listings);
+  const listings = useListings();
   const agents = getAgents();
   const routeReveal = useReveal();
   const agentsReveal = useReveal();

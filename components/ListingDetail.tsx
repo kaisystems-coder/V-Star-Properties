@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useListingsStore, useStoreHydrated } from '@/lib/store';
+import { useListings } from '@/lib/listings-context';
 import { getRelatedListings } from '@/lib/listings';
 import { formatDate, formatPrice, specLedger } from '@/lib/format';
 import Gallery from './Gallery';
@@ -15,18 +15,10 @@ import { regionSlug } from '@/lib/regions';
 import { areaDisplayName, areaSlug, areasWithPages } from '@/lib/aeo';
 
 export default function ListingDetail({ slug }: { slug: string }) {
-  const listings = useListingsStore((s) => s.listings);
-  const hydrated = useStoreHydrated();
+  const listings = useListings();
   const listing = listings.find((l) => l.slug === slug);
 
-  // On a hard reload of a listing created in /admin, the slug is not in the
-  // seed data until sessionStorage is read back. Waiting avoids flashing the
-  // "no longer on the books" notice at a property that does exist.
-  if (!listing && !hydrated) {
-    return <div className="min-h-[60vh]" aria-busy="true" />;
-  }
-
-  // Reachable when a listing is deleted in /admin while its page is open.
+  // Reachable when a cached page outlives a listing deleted in /admin.
   if (!listing) {
     return (
       <div className="mx-auto max-w-[40rem] px-5 pb-24 pt-40 text-center sm:px-8">

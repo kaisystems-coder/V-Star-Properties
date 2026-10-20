@@ -32,7 +32,7 @@ export async function generateMetadata({
   const agent = getAgentBySlug(slug);
   if (!agent) return { title: 'Agent not found' };
   const path = '/our-agents/' + agent.slug;
-  const listings = getListings();
+  const listings = await getListings();
   const description = agent.imageIsLogo
     ? `Every V-Star Properties listing in one place: ${listings.filter((l) => l.listingType === 'Sale').length} for sale and ${listings.filter((l) => l.listingType === 'Rent').length} to rent across San Fernando, South and Central Trinidad. Call or WhatsApp ${agent.phone}.`
     : agent.role +

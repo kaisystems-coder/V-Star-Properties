@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useMemo, useState } from 'react';
-import { useListingsStore } from '@/lib/store';
+import { useListings } from '@/lib/listings-context';
 import {
   applyFilters,
   defaultFilters,
@@ -127,7 +127,7 @@ function Browser({
   intro: string;
 }) {
   const searchParams = useSearchParams();
-  const listings = useListingsStore((s) => s.listings);
+  const listings = useListings();
   const [filters, setFilters] = useState<Filters>(() =>
     seedFilters(mode, searchParams),
   );

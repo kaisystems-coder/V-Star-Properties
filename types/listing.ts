@@ -47,6 +47,11 @@ export interface Listing {
    * without one; the detail page just omits the map.
    */
   coords?: { lat: number; lng: number };
+  /**
+   * False hides the listing from the public site without deleting it. Only
+   * the admin ever sees an unpublished listing; RLS keeps them from `anon`.
+   */
+  isPublished?: boolean;
 }
 
 export type ListingDraft = Omit<Listing, 'id' | 'slug'> & {
