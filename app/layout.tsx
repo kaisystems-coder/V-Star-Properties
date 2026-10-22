@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Lato, Tinos } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
@@ -163,6 +164,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <SiteFooter listings={listings} />
         </ListingsProvider>
         <WhatsAppButton />
+        {/* Vercel Web Analytics: page views, no cookies. Inert on localhost. */}
+        <Analytics />
       </body>
     </html>
   );
