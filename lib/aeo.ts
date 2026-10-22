@@ -1,6 +1,7 @@
 import type { Listing } from '@/types/listing';
 import { BRAND } from '@/components/Logo';
 import { formatTTD } from './format';
+import { VIEWING_REQUIREMENTS_ANSWER } from './viewing';
 
 /**
  * Answer-engine optimisation: questions people ask about property here, with
@@ -183,7 +184,11 @@ export function generalFaq(listings: Listing[]): QA[] {
     },
     {
       q: 'How do I book a viewing?',
-      a: `Use the "Arrange a viewing" form on any listing, or ${CONTACT_LINE.charAt(0).toLowerCase() + CONTACT_LINE.slice(1)}`,
+      a: `Use the "Arrange a viewing" form on any listing, or ${CONTACT_LINE.charAt(0).toLowerCase() + CONTACT_LINE.slice(1)} Pre-screening with a valid ID is required before any viewing is scheduled, and a property for sale also needs a mortgage pre-approval or proof of funds.`,
+    },
+    {
+      q: 'What documents do I need to view a property?',
+      a: VIEWING_REQUIREMENTS_ANSWER,
     },
     {
       q: 'How do I sell or rent out my property with V-Star?',

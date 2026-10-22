@@ -7,6 +7,8 @@ import { useListings } from '@/lib/listings-context';
 import { useSavedStore, useSavedHydrated } from '@/lib/saved';
 import PageHeader from '@/components/PageHeader';
 import ListingCard from '@/components/ListingCard';
+import { ViewingChecklist } from '@/components/ViewingRequirements';
+import { ALL_VIEWING_REQUIREMENTS } from '@/lib/viewing';
 
 /**
  * The shortlist.
@@ -101,11 +103,18 @@ export default function SavedPage() {
           </div>
         ) : (
           <>
-            <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-mist-edge pb-5">
-              <p className="max-w-[36rem] text-[0.94rem] leading-[1.7] text-ink-mute">
-                Ready to view them? Send the shortlist across and an agent will
-                line up the viewings.
-              </p>
+            <div className="mb-8 flex flex-wrap items-start justify-between gap-x-8 gap-y-5 border-b border-mist-edge pb-6">
+              <div className="flex min-w-0 max-w-[36rem] flex-col gap-4">
+                <p className="text-[0.94rem] leading-[1.7] text-ink-mute">
+                  Ready to view them? Send the shortlist across and an agent will
+                  line up the viewings.
+                </p>
+                <ViewingChecklist
+                  items={ALL_VIEWING_REQUIREMENTS}
+                  heading="Required before any viewing is scheduled"
+                  showAppliesTo
+                />
+              </div>
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   href="/contact"

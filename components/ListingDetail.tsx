@@ -11,6 +11,8 @@ import StatusPill from './StatusPill';
 import SaveButton from './SaveButton';
 import LocationMap from './LocationMap';
 import ListingDescription from './ListingDescription';
+import ViewingRequirements from './ViewingRequirements';
+import { viewingRequirementsFor } from '@/lib/viewing';
 import { regionSlug } from '@/lib/regions';
 import { areaDisplayName, areaSlug, areasWithPages } from '@/lib/aeo';
 
@@ -127,6 +129,8 @@ export default function ListingDetail({ slug }: { slug: string }) {
               {listing.yearBuilt ? ' · Built ' + listing.yearBuilt : ''}
             </p>
           </section>
+
+          <ViewingRequirements items={viewingRequirementsFor(listing.listingType)} />
 
           {listing.amenities.length > 0 && (
           <section className="mt-10">

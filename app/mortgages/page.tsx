@@ -174,7 +174,9 @@ export default function MortgagesPage() {
                   </h3>
                   <p className="mt-2.5 text-[0.92rem] leading-[1.7] text-mist/65">
                     {adviser.name} works with buyers from the first viewing
-                    through the offer, the bank and closing day.
+                    through the offer, the bank and closing day. A mortgage
+                    pre-approval or proof of funds is required before a
+                    viewing can be scheduled, so start with the bank early.
                   </p>
                   <div className="mt-5 flex flex-wrap gap-2.5">
                     <Link

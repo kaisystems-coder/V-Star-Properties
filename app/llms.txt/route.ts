@@ -5,6 +5,7 @@ import { regionSlug } from '@/lib/regions';
 import { areaDisplayName, areaSlug, areasWithPages } from '@/lib/aeo';
 import { formatPrice } from '@/lib/format';
 import { SITE_URL } from '@/lib/seo';
+import { VIEWING_REQUIREMENTS_ANSWER } from '@/lib/viewing';
 
 /**
  * /llms.txt: a plain-text map of the site for AI assistants (llmstxt.org).
@@ -45,6 +46,10 @@ ${BRAND.socials.map((s) => `- ${s.label}: ${s.href}`).join('\n')}
 - [Mortgage and closing-cost calculators](${SITE_URL}/mortgages)
 - [About](${SITE_URL}/about)
 - [Contact](${SITE_URL}/contact)
+
+## Viewing requirements
+
+${VIEWING_REQUIREMENTS_ANSWER}
 
 ## Areas
 

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import type { Listing } from '@/types/listing';
+import { viewingRequirementsFor } from '@/lib/viewing';
+import { ViewingChecklist } from './ViewingRequirements';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -15,10 +17,13 @@ type Status = 'idle' | 'sending' | 'sent' | 'error';
 export default function ContactAgent({ listing }: { listing: Listing }) {
   const [status, setStatus] = useState<Status>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const requirements = viewingRequirementsFor(listing.listingType);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
+    // Held now: React clears currentTarget once the handler awaits.
+    const form = e.currentTarget;
+    const data = new FormData(form);
     const name = String(data.get('name') ?? '').trim();
     const email = String(data.get('email') ?? '').trim();
 
@@ -27,6 +32,12 @@ export default function ContactAgent({ listing }: { listing: Listing }) {
     if (!email) next.email = 'Enter an email address we can reply to.';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       next.email = 'That email address is missing an @ or a domain.';
+    if (!data.get('documents'))
+      next.documents =
+        'Tick to confirm you have ' +
+        (requirements.length === 1 ? 'this document' : 'these documents') +
+        '. A viewing cannot be scheduled without ' +
+        (requirements.length === 1 ? 'it.' : 'them.');
 
     setErrors(next);
     if (Object.keys(next).length > 0) {
@@ -38,7 +49,7 @@ export default function ContactAgent({ listing }: { listing: Listing }) {
     setStatus('sending');
     await new Promise((r) => setTimeout(r, 700));
     setStatus('sent');
-    e.currentTarget.reset();
+    form.reset();
   };
 
   return (
@@ -82,6 +93,34 @@ export default function ContactAgent({ listing }: { listing: Listing }) {
         />
       </div>
 
+      <div className="flex flex-col gap-3 border-t border-mist-edge pt-4">
+        <ViewingChecklist items={requirements} />
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="documents"
+            className="flex min-h-11 cursor-pointer items-start gap-2.5 py-1 text-[0.84rem] leading-[1.5] text-ink-soft"
+          >
+            <input
+              id="documents"
+              name="documents"
+              type="checkbox"
+              aria-required
+              aria-invalid={errors.documents ? true : undefined}
+              aria-describedby={errors.documents ? 'documents-error' : undefined}
+              className="mt-0.5 h-[1.05rem] w-[1.05rem] shrink-0 cursor-pointer accent-brand-deep"
+            />
+            {requirements.length === 1
+              ? 'I have my ID ready for pre-screening.'
+              : 'I have my ID and my mortgage pre-approval or proof of funds ready.'}
+          </label>
+          {errors.documents && (
+            <p id="documents-error" role="alert" className="text-[0.76rem] text-[#9B3D2E]">
+              {errors.documents}
+            </p>
+          )}
+        </div>
+      </div>
+
       <button
         type="submit"
         disabled={status === 'sending'}
@@ -95,7 +134,7 @@ export default function ContactAgent({ listing }: { listing: Listing }) {
           role="status"
           className="flex items-center gap-2 rounded-sm bg-brand-wash px-3 py-2.5 text-[0.84rem] text-brand-deep"
         >
-          <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden>
+          <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden className="shrink-0">
             <path
               d="M3 8l3.2 3.2L12 5"
               stroke="currentColor"
@@ -105,7 +144,7 @@ export default function ContactAgent({ listing }: { listing: Listing }) {
               fill="none"
             />
           </svg>
-          Request sent. An agent will be in touch about this property.
+          Request sent. V-Star will be in touch to confirm your documents and book the viewing.
         </p>
       )}
     </form>

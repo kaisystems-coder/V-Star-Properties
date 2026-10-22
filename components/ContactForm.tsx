@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { FUNDS, SCREENING } from '@/lib/viewing';
+import { ViewingChecklist } from './ViewingRequirements';
 
 type Status = 'idle' | 'sending' | 'sent';
 
@@ -23,6 +25,15 @@ const SUBJECTS = [
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [subject, setSubject] = useState(SUBJECTS[0]);
+  // Anyone writing in to buy or rent is usually asking for a viewing, so they
+  // see what V-Star needs first. Renting needs the pre-screening only.
+  const requirements =
+    subject === 'Buying a property'
+      ? [SCREENING, FUNDS]
+      : subject === 'Renting a property'
+        ? [SCREENING]
+        : [];
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,6 +60,7 @@ export default function ContactForm() {
     await new Promise((r) => setTimeout(r, 700));
     setStatus('sent');
     form.reset();
+    setSubject(SUBJECTS[0]);
   };
 
   return (
@@ -90,7 +102,8 @@ export default function ContactForm() {
           <select
             id="subject"
             name="subject"
-            defaultValue={SUBJECTS[0]}
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
             className="rounded-sm border border-mist-edge bg-mist px-3 py-3 text-[16px] text-ink transition-colors duration-200 ease-out hover:border-ink/25 focus:border-brand sm:py-[0.7rem] desk:text-[0.88rem]"
           >
             {SUBJECTS.map((s) => (
@@ -124,6 +137,14 @@ export default function ContactForm() {
           </p>
         )}
       </div>
+
+      {requirements.length > 0 && (
+        <ViewingChecklist
+          items={requirements}
+          heading="Booking a viewing? Have these ready"
+          className="rounded-sm bg-brand-wash px-4 py-3.5"
+        />
+      )}
 
       <button
         type="submit"
